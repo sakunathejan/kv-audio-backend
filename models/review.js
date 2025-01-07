@@ -27,6 +27,11 @@ const reviewSchema = new mongoose.Schema({
         type: Number, 
         required: true 
     },
+    isApproved: { 
+        type: Boolean, 
+        required: true, 
+        default: false 
+    },
 });
 
 const Review = mongoose.model("Review", reviewSchema);
