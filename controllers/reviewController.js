@@ -32,10 +32,13 @@ export function getReviews(req, res) {
     {
         Review.find({isApproved:true}).then((reviews) => {
             res.json(reviews);
+        }).catch((error) => {
+            res.status(500).json({error:"Review addition failed"})
         })
+    
         return
     }
-
+    
     if(user.role == "admin")
     {
         Review.find().then((reviews)=>{
