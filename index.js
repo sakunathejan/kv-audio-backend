@@ -5,15 +5,18 @@ import userRouter from "./routes/userRouter.js";
 import productRouter from "./routes/productRouter.js";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
-import reviewRouter from "./routes/reviewRouter.js"; 
+import reviewRouter from "./routes/reviewRouter.js";
+import inquiryRouter from "./routes/inquiryRouter.js";
 
 dotenv.config();
+
 const app = express();
 
 app.use(bodyParser.json());
 
 app.use((req, res, next) => {
-  let token = req.header("Authorization")
+  let token = req.header("Authorization");
+  //created the auth 
 
   if (token != null) {
     token = token.replace("Bearer ", ""); 
@@ -27,31 +30,27 @@ app.use((req, res, next) => {
   next()
 });
 
-let mongoUrl = process.env.MONGO_URL
-mongoose.connect(mongoUrl)
+let mongoUrl =
+  process.env.MONGO_URL;
 
-let connection = mongoose.connection
+mongoose.connect(mongoUrl);
+
+const connection = mongoose.connection;
 
 connection.once("open", () => {
   console.log("MongoDB connection established successfully");
 });
 
 
+
 app.use("/api/users", userRouter);
 app.use("/api/products", productRouter);
 app.use("/api/reviews", reviewRouter);
-
+app.use("/api/inquiries", inquiryRouter);
 
 app.listen(3000, () => {
   console.log("Server is running on port 3000");
 });
 
-// user email & pass
-//     testuser@example.com
-//     securepassword123
-                                               
-// admin email & pass
-// sakuna2005@gmail.com
-// 123
-
-
+//malith5@gmail.com 123  - Customer
+////malith6@gmail.com 123  - Admin
