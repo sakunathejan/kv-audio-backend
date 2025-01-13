@@ -1,108 +1,89 @@
 import Review from "../models/review.js";
 
-export function addReview(req, res) {
-  if (req.user == null) {
-    res.status(401).json({
-      message: "Please login and try again",
-    });
-    return;
-  }
+export async function addReview(req, res) {
+    try {
+        if (req.user == null) {
+            res.status(401).json({ message: "Please login and try again" });
+            return;
+        }
 
-  const data = req.body;
+        const data = req.body;
 
-  data.name = req.user.firstName + " " + req.user.lastName;
-  data.profilePicture = req.user.profilePicture;
-  data.email = req.user.email;
+        data.name = `${req.user.firstName} ${req.user.lastName}`;
+        data.profilePicture = req.user.profilePicture;
+        data.email = req.user.email;
 
-  const newReview = new Review(data);
+        const newReview = new Review(data);
+        await newReview.save();
 
-  newReview
-    .save()
-    .then(() => {
-      res.json({ message: "Review added successfully" });
-    })
-    .catch(() => {
-      res.status(500).json({ error: "Review addition failed" });
-    });
+        res.json({ message: "Review added successfully" });
+    } catch (error) {
+        res.status(500).json({ message: "An error occurred", error: error.message });
+    }
 }
 
 export async function getReviews(req, res) {
-  const user = req.user;
-  try{
-    if(user.role == "admin"){
-      const reviews = await Review.find();
-      res.json(reviews);
-    }else{
-      const reviews = await Review.find({isApproved:true});
-      res.json(reviews);
+    try {
+        const user = req.user;
+
+        if (user == null || user.role !== "admin") {
+            const reviews = await Review.find({ isApproved: true });
+            res.json(reviews);
+            return;
+        }
+
+        if (user.role === "admin") {
+            const reviews = await Review.find();
+            res.json(reviews);
+        }
+    } catch (error) {
+        res.status(500).json({ message: "An error occurred", error: error.message });
     }
-  }catch(error){
-    res.status(500).json({error:"Failed to get reviews"});
-  }
- 
-    
-  
 }
 
-export function deleteReview(req, res) {
-  const email = req.params.email;
+export async function deleteReview(req, res) {
+    try {
+        const email = req.params.email;
 
-  if (req.user == null) {
-    res.status(401).json({ message: "Please login and try again" });
-    return;
-  }
+        if (req.user == null) {
+            res.status(401).json({ message: "Please login and try again" });
+            return;
+        }
 
-  if (req.user.role == "admin") {
-    Review.deleteOne({ email: email })
-      .then(() => {
-        res.json({ message: "Review deleted successfully" });
-      })
-      .catch(() => {
-        res.status(500).json({ error: "Review deletion failed" });
-      });
+        if (req.user.role === "admin") {
+            await Review.deleteOne({ email });
+            res.json({ message: "Review deleted successfully" });
+            return;
+        }
 
-    return;
-  }
+        if (req.user.role === "customer" && req.user.email === email) {
+            await Review.deleteOne({ email });
+            res.json({ message: "Review deleted successfully" });
+            return;
+        }
 
-  if (req.user.role == "customer") {
-    if (req.user.email == email) {
-      Review.deleteOne({ email: email })
-        .then(() => {
-          res.json({ message: "Review deleted successfully" });
-        })
-        .catch(() => {
-          res.status(500).json({ error: "Review deletion failed" });
-        });
-    } else {
-      res
-        .status(403)
-        .json({ message: "You are not authorized to perform this action" });
+        res.status(401).json({ message: "You are not authorized to delete this review" });
+    } catch (error) {
+        res.status(500).json({ message: "An error occurred", error: error.message });
     }
-  }
 }
 
-export function approveReview(req, res) {
-  const email = req.params.email;
+export async function approveReview(req, res) {
+    try {
+        const email = req.params.email;
 
-  if (req.user == null) {
-    res.status(401).json({ message: "Please login and try again" });
-    return;
-  }
+        if (req.user == null) {
+            res.status(401).json({ message: "Please login and try again" });
+            return;
+        }
 
-  if (req.user.role == "admin") {
-    Review.updateOne(
-      {
-        email: email,
-      },
-      {
-        isApproved: true,
-      }
-    ).then(() => {
-      res.json({ message: "Review approved successfully" });
-    }).catch(() => {
-      res.status(500).json({ error: "Review approval failed" });
-    });
-  }else{
-    res.status(403).json({ message: "You are not and admin. Only admins can approve the reviews" });
-  }
+        if (req.user.role === "admin") {
+            await Review.updateOne({ email }, { isApproved: true });
+            res.json({ message: "Review approved successfully" });
+        } else {
+            res.status(401).json({ message: "Only admins can approve reviews" });
+        }
+    } catch (error) {
+        res.status(500).json({ message: "An error occurred", error: error.message });
+    }
 }
