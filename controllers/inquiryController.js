@@ -137,7 +137,9 @@ export async function updateInquiry(req,res){
 
 
 
-          await Inquiry.updateOne({id:id},{message : data.message})
+
+
+          await Inquiry.updateOne({id:id},data)
           res.json({
             message : "Inquiry updated successfully"
           })
@@ -161,3 +163,4 @@ export async function updateInquiry(req,res){
     })
   }
 }
+

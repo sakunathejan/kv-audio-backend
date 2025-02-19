@@ -40,6 +40,7 @@ export async function loginUser(req, res) {
                     email: user.email,
                     role: user.role,
                     profilePicture: user.profilePicture,
+                    phone:user.phone
                 },
                 process.env.JWT_SECRET
             );
@@ -51,4 +52,33 @@ export async function loginUser(req, res) {
     } catch (error) {
         res.status(500).json({ message: "An error occurred during login", error: error.message });
     }
+}
+
+
+
+export function isItAdmin(req){
+    let isAdmin = false;
+    
+    if(req.user != null ){
+        if(req.user.role=="admin")
+        {
+            isAdmin = true;
+        }
+            
+    }
+
+    return isAdmin;
+
+}
+
+export function isItCustomer(req){
+    let isCustomer = false;
+
+    if(req.user !=null){
+        if(req.user.role == "customer"){
+            isCustomer = true;
+        }
+    }
+
+    return isCustomer;
 }
