@@ -35,7 +35,7 @@ const productSchema = new mongoose.Schema({
   image:{
     type : [String],
     required : true,
-    default:["https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.dreamstime.com%2Fillustration%2Fprofile-icon.html&psig=AOvVaw07NitRnQsiV7nu13NHlxXn&ust=1739711892445000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCPCtsYHixYsDFQAAAAAdAAAAABAE"]
+    default:["https://www.shutterstock.com/image-vector/avatar-gender-neutral-silhouette-vector-600nw-2470054311.jpg"]
     
   }
 });
